@@ -1,0 +1,72 @@
+Data.to.plot.epsilon1_TIV <- read_excel("ToEpsilon1_TIV_3day.xlsx", col_names = "data")
+
+Data.to.plot.epsilon2_TIV <- read_excel("ToEpsilon2_TIV_3day.xlsx", col_names = "data")
+
+Data.to.plot.epsilon1_IR <- read_excel("ToEpsilon1_IR_3day.xlsx", col_names = "data")
+Data.to.plot.epsilon2_IR <- read_excel("ToEpsilon2_IR_3day.xlsx", col_names = "data")
+
+AUC.viral.load.epsilon1.TIV <- Data.to.plot.epsilon1_TIV$data[1:11]
+viral.load.peak.value.epsilon1.TIV <- Data.to.plot.epsilon1_TIV$data[12:22]
+viral.load.peak.time.epsilon1.TIV <- Data.to.plot.epsilon1_TIV$data[23:33]
+AUC.macrophage.epsilon1.TIV <- Data.to.plot.epsilon1_TIV$data[34:44]
+
+AUC.viral.load.epsilon2.TIV <- Data.to.plot.epsilon2_TIV$data[1:11]
+viral.load.peak.value.epsilon2.TIV <- Data.to.plot.epsilon2_TIV$data[12:22]
+viral.load.peak.time.epsilon2.TIV <- Data.to.plot.epsilon2_TIV$data[23:33]
+AUC.macrophage.epsilon2.TIV <- Data.to.plot.epsilon2_TIV$data[34:44]
+
+
+AUC.viral.load.epsilon1.IR <- Data.to.plot.epsilon1_IR$data[1:11]
+viral.load.peak.value.epsilon1.IR <- Data.to.plot.epsilon1_IR$data[12:22]
+viral.load.peak.time.epsilon1.IR <- Data.to.plot.epsilon1_IR$data[23:33]
+AUC.macrophage.epsilon1.IR <- Data.to.plot.epsilon1_IR$data[34:44]
+
+AUC.viral.load.epsilon2.IR <- Data.to.plot.epsilon2_IR$data[1:11]
+viral.load.peak.value.epsilon2.IR <- Data.to.plot.epsilon2_IR$data[12:22]
+viral.load.peak.time.epsilon2.IR <- Data.to.plot.epsilon2_IR$data[23:33]
+AUC.macrophage.epsilon2.IR <- Data.to.plot.epsilon2_IR$data[34:44]
+
+epsilon1 <- posterior_samples_merged_after_burnin_TIV$theta_WT[,1]
+epsilon1_value <- c(0,quantile(epsilon1, c(seq(.1,1,.1))))
+
+epsilon2 <- posterior_samples_merged_after_burnin_TIV$theta_WT[,7]
+epsilon2_value <- c(0,quantile(epsilon2, c(seq(.1,1,.1))))
+
+increase_rate <- seq(0,1,.1)
+
+Properties <- as.character(c("AUC viral load","Viral load peak value","Viral load peak time","AUC macrophages"))
+
+Data.frame.TIV <- data.frame(Increase_rate = rep(as.character(increase_rate), 8), 
+                                      plot.data = c(AUC.viral.load.epsilon1.TIV, AUC.viral.load.epsilon2.TIV,
+                                                    viral.load.peak.value.epsilon1.TIV,viral.load.peak.value.epsilon2.TIV,
+                                                    viral.load.peak.time.epsilon1.TIV, viral.load.peak.time.epsilon2.TIV,
+                                                    AUC.macrophage.epsilon1.TIV, AUC.macrophage.epsilon2.TIV),
+                                      property = c(rep(Properties, each = length(increase_rate)*2)),
+                                      Parameters = c(rep(c("epsilon1","epsilon2"), each = length(AUC.viral.load.epsilon1.TIV))))
+
+ggplot(data = Data.frame.TIV, aes(Increase_rate,plot.data*100, fill = Parameters)) +
+  geom_bar(stat="identity", width=.6, position = "dodge")   +
+  facet_wrap(~property, ncol = 2, scales = "free") +
+  labs(x = "Parameter percentile", y = "Quantity changes in percentage (%) (TIV model)")+
+  theme_bw() + theme(legend.key = element_rect(fill = "white", colour = "black")) + 
+  theme(text = element_text(size = 12)) + scale_fill_manual(values = wes_palette("GrandBudapest2", n = 4))
+
+
+
+
+Data.frame.IR <- data.frame(Increase_rate = rep(as.character(increase_rate), 8), 
+                                      plot.data = c(AUC.viral.load.epsilon1.IR, AUC.viral.load.epsilon2.IR,
+                                                    viral.load.peak.value.epsilon1.IR,viral.load.peak.value.epsilon2.IR,
+                                                    viral.load.peak.time.epsilon1.IR, viral.load.peak.time.epsilon2.IR,
+                                                    AUC.macrophage.epsilon1.IR, AUC.macrophage.epsilon2.IR),
+                                      property = c(rep(Properties, each = length(increase_rate)*2)),
+                                      Parameters = c(rep(c("epsilon1","epsilon2"), each = length(AUC.viral.load.epsilon1.IR))))
+
+ggplot(data = Data.frame.IR, aes(Increase_rate,plot.data*100, fill = Parameters)) +
+  geom_bar(stat="identity", width=.6, position = "dodge") +
+  facet_wrap(~property, ncol = 2, scales = "free") +
+  labs(x = "Parameter percentile", y = "Quantity changes in percentage (%) (IR model)")+
+  theme_bw() + theme(legend.key = element_rect(fill = "white", colour = "black")) + 
+  theme(text = element_text(size = 12)) + scale_fill_manual(values = wes_palette("GrandBudapest2", n = 4))
+
+
