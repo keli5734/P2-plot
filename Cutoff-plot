@@ -1,0 +1,43 @@
+library(wesanderson)
+plot.cutoff.TIV <- read_excel("cutoff_TIV.xlsx", col_names = "data")
+plot.cutoff.IR <- read_excel("cutoff_IR.xlsx", col_names = "data")
+
+
+cutoff.AUC.viral.load.TIV <- plot.cutoff.TIV$data[1:6]
+cutoff.viral.load.peak.value.TIV <- plot.cutoff.TIV$data[7:12]
+cutoff.viral.load.peak.time.TIV <- plot.cutoff.TIV$data[13:18]
+cutoff.macrophage.TIV <- plot.cutoff.TIV$data[19:24]
+
+
+cutoff.AUC.viral.load.IR <- plot.cutoff.IR$data[1:6]
+cutoff.viral.load.peak.value.IR <- plot.cutoff.IR$data[7:12]
+cutoff.viral.load.peak.time.IR <- plot.cutoff.IR$data[13:18]
+cutoff.macrophage.IR <- plot.cutoff.IR$data[19:24]
+
+cut.off.day = as.factor(c(1,2,3,5,7,14))
+
+Properties <- factor(c("AUC viral load","Viral load peak value","Viral load peak time","AUC macrophages"), 
+                     level = c("AUC viral load","Viral load peak value","Viral load peak time","AUC macrophages"))
+
+cutoff.data.frame.TIV <- data.frame(Cutoff.day = rep(cut.off.day,4), 
+                                   data.plot = plot.cutoff.TIV$data,
+                                   property = rep(Properties, each = length(cut.off.day)))
+
+ggplot(data = cutoff.data.frame.TIV, aes(Cutoff.day, data.plot*100, fill = property)) +
+  geom_bar(stat="identity", width=.6, position = "dodge")   +
+  labs(x = "The cut-off day", y = "Quantity changes in percentage (%) (TIV model)")+
+  theme_bw() + theme(legend.key = element_rect(fill = "white", colour = "black")) + 
+  theme(text = element_text(size = 12))  + 
+  ylim(c(-100,100))+scale_fill_manual(values = wes_palette("GrandBudapest2", n = 4))
+
+
+cutoff.data.frame.IR <- data.frame(Cutoff.day = rep(cut.off.day,4), 
+                                data.plot = plot.cutoff.IR$data,
+                                property = rep(Properties, each = length(cut.off.day)))
+
+ggplot(data = cutoff.data.frame.IR, aes(Cutoff.day, data.plot*100, fill = property)) +
+  geom_bar(stat="identity", width=.6, position = "dodge")   +
+  labs(x = "The cut-off day", y = "Quantity changes in percentage (%) (IR model)")+
+  theme_bw() + theme(legend.key = element_rect(fill = "white", colour = "black")) + 
+  theme(text = element_text(size = 12))  + 
+  ylim(c(-100,100))+scale_fill_manual(values = wes_palette("GrandBudapest2", n = 4))
